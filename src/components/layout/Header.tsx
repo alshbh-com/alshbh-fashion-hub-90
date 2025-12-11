@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, Heart, Menu, X, Sun, Moon, Search } from "lucide-react";
+import { ShoppingCart, Heart, Menu, X, Sun, Moon, Search, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartContext } from "@/contexts/CartContext";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useDarkMode } from "@/hooks/useDarkMode";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,7 +36,8 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="text-2xl font-bold text-gradient font-cairo">
+          <img src={logo} alt="Alshbh Fashion" className="h-12 w-12 object-contain" />
+          <span className="text-xl font-bold text-gradient font-cairo hidden sm:inline">
             Alshbh Fashion
           </span>
         </Link>
@@ -70,6 +72,13 @@ const Header = () => {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          {/* Admin Link */}
+          <Link to="/admin">
+            <Button variant="ghost" size="icon" className="hover:bg-accent/20">
+              <Lock className="h-5 w-5 text-amber-500" />
+            </Button>
+          </Link>
+
           {/* Dark Mode Toggle */}
           <Button
             variant="ghost"

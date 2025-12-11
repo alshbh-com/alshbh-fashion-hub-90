@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
-import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Trash2, Plus, Minus, ShoppingBag, ArrowLeft, Trash } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useCartContext } from "@/contexts/CartContext";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const Cart = () => {
-  const { items, removeItem, updateQuantity, subtotal, itemCount } = useCartContext();
+  const { items, removeItem, updateQuantity, subtotal, itemCount, clearCart } = useCartContext();
 
   if (items.length === 0) {
     return (
@@ -41,102 +49,125 @@ const Cart = () => {
 
       <Layout>
         <div className="container py-8">
-          <h1 className="text-3xl font-bold mb-8 text-right">سلة المشتريات</h1>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl font-bold text-right">سلة المشتريات</h1>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={clearCart}
+              className="gap-2"
+            >
+              <Trash className="h-4 w-4" />
+              مسح السلة
+            </Button>
+          </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Cart Items */}
-            <div className="lg:col-span-2 space-y-4">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex gap-4 p-4 bg-card rounded-lg border"
-                  dir="rtl"
-                >
-                  {/* Product Image */}
-                  <Link to={`/product/${item.productId}`} className="shrink-0">
-                    <img
-                      src={item.image}
-                      alt={item.nameAr}
-                      className="w-24 h-24 object-cover rounded-lg"
-                    />
-                  </Link>
-
-                  {/* Product Info */}
-                  <div className="flex-1 space-y-2">
-                    <Link to={`/product/${item.productId}`}>
-                      <h3 className="font-semibold hover:text-primary transition-colors">
-                        {item.nameAr}
-                      </h3>
-                    </Link>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        اللون:
-                        <span
-                          className="w-4 h-4 rounded-full border"
-                          style={{ backgroundColor: item.colorHex }}
-                        />
-                        {item.color}
-                      </span>
-                      <span>المقاس: {item.size}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      {/* Price */}
-                      <div>
-                        {item.discountPrice ? (
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-primary">
-                              {item.discountPrice} ج.م
+            {/* Cart Items Table */}
+            <div className="lg:col-span-2">
+              <div className="bg-card rounded-lg border overflow-hidden">
+                <Table dir="rtl">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-right">المنتج</TableHead>
+                      <TableHead className="text-center">اللون</TableHead>
+                      <TableHead className="text-center">المقاس</TableHead>
+                      <TableHead className="text-center">السعر</TableHead>
+                      <TableHead className="text-center">الكمية</TableHead>
+                      <TableHead className="text-center">الإجمالي</TableHead>
+                      <TableHead className="text-center">حذف</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <Link
+                            to={`/product/${item.productId}`}
+                            className="flex items-center gap-3"
+                          >
+                            <img
+                              src={item.image}
+                              alt={item.nameAr}
+                              className="w-16 h-16 object-cover rounded-lg"
+                            />
+                            <span className="font-medium hover:text-primary transition-colors line-clamp-2">
+                              {item.nameAr}
                             </span>
-                            <span className="text-sm text-muted-foreground line-through">
+                          </Link>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <span
+                              className="w-5 h-5 rounded-full border"
+                              style={{ backgroundColor: item.colorHex }}
+                            />
+                            <span className="text-sm">{item.color}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center font-medium">
+                          {item.size}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {item.discountPrice ? (
+                            <div className="flex flex-col">
+                              <span className="font-bold text-primary">
+                                {item.discountPrice} ج.م
+                              </span>
+                              <span className="text-xs text-muted-foreground line-through">
+                                {item.price} ج.م
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="font-bold text-primary">
                               {item.price} ج.م
                             </span>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-1">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() =>
+                                updateQuantity(item.id, Math.max(1, item.quantity - 1))
+                              }
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-8 text-center font-medium">
+                              {item.quantity}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
                           </div>
-                        ) : (
-                          <span className="font-bold text-primary">
-                            {item.price} ج.م
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() =>
-                            updateQuantity(item.id, Math.max(1, item.quantity - 1))
-                          }
-                          disabled={item.quantity <= 1}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="w-8 text-center font-medium">
-                          {item.quantity}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Remove Button */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => removeItem(item.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                        </TableCell>
+                        <TableCell className="text-center font-bold text-primary">
+                          {((item.discountPrice || item.price) * item.quantity).toFixed(0)} ج.م
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => removeItem(item.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
 
             {/* Order Summary */}
