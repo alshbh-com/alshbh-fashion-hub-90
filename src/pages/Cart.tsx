@@ -36,7 +36,7 @@ const Cart = () => {
   return (
     <>
       <Helmet>
-        <title>سلة المشتريات ({itemCount}) - Alshbh Fashion</title>
+        <title>{`سلة المشتريات (${itemCount || 0}) - Alshbh Fashion`}</title>
       </Helmet>
 
       <Layout>
