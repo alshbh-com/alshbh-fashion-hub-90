@@ -5,8 +5,6 @@ import {
   Package,
   ShoppingCart,
   FolderTree,
-  Palette,
-  Ruler,
   MapPin,
   Image,
   LogOut,
@@ -17,8 +15,6 @@ import { Button } from "@/components/ui/button";
 import AdminProducts from "./sections/AdminProducts";
 import AdminCategories from "./sections/AdminCategories";
 import AdminOrders from "./sections/AdminOrders";
-import AdminColors from "./sections/AdminColors";
-import AdminSizes from "./sections/AdminSizes";
 import AdminGovernorates from "./sections/AdminGovernorates";
 import AdminAds from "./sections/AdminAds";
 
@@ -27,8 +23,6 @@ type Section =
   | "products"
   | "categories"
   | "orders"
-  | "colors"
-  | "sizes"
   | "governorates"
   | "ads";
 
@@ -37,8 +31,6 @@ const menuItems = [
   { id: "products" as Section, label: "المنتجات", icon: Package },
   { id: "orders" as Section, label: "الطلبات", icon: ShoppingCart },
   { id: "categories" as Section, label: "الأقسام", icon: FolderTree },
-  { id: "colors" as Section, label: "الألوان", icon: Palette },
-  { id: "sizes" as Section, label: "المقاسات", icon: Ruler },
   { id: "governorates" as Section, label: "المحافظات", icon: MapPin },
   { id: "ads" as Section, label: "الإعلانات", icon: Image },
 ];
@@ -55,20 +47,16 @@ const AdminDashboard = () => {
         return <AdminCategories />;
       case "orders":
         return <AdminOrders />;
-      case "colors":
-        return <AdminColors />;
-      case "sizes":
-        return <AdminSizes />;
       case "governorates":
         return <AdminGovernorates />;
       case "ads":
         return <AdminAds />;
       default:
         return (
-          <div className="text-center py-16">
-            <h2 className="text-3xl font-bold mb-4">مرحباً بك في لوحة التحكم</h2>
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-bold mb-4">مرحباً بك في لوحة التحكم</h2>
             <p className="text-muted-foreground">
-              اختر قسماً من القائمة الجانبية للبدء
+              اختر قسماً من القائمة للبدء
             </p>
           </div>
         );
@@ -87,21 +75,31 @@ const AdminDashboard = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 right-0 z-50 w-64 bg-sidebar border-l border-sidebar-border transform transition-transform duration-300 ${
+        className={`fixed lg:static inset-y-0 right-0 z-50 w-60 bg-sidebar border-l border-sidebar-border transform transition-transform duration-300 ${
           isSidebarOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         }`}
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6 border-b border-sidebar-border">
-            <Link to="/" className="text-xl font-bold text-sidebar-foreground">
-              Alshbh Fashion
-            </Link>
-            <p className="text-sm text-sidebar-foreground/70">لوحة التحكم</p>
+          <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
+            <div>
+              <Link to="/" className="text-lg font-bold text-sidebar-foreground">
+                Alshbh Fashion
+              </Link>
+              <p className="text-xs text-sidebar-foreground/70">لوحة التحكم</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-sidebar-foreground"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
           </div>
 
           {/* Menu */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
             {menuItems.map((item) => (
               <button
                 key={item.id}
@@ -109,7 +107,7 @@ const AdminDashboard = () => {
                   setActiveSection(item.id);
                   setIsSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm ${
                   activeSection === item.id
                     ? "bg-sidebar-primary text-sidebar-primary-foreground"
                     : "text-sidebar-foreground hover:bg-sidebar-accent"
@@ -122,9 +120,9 @@ const AdminDashboard = () => {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-sidebar-border">
+          <div className="p-3 border-t border-sidebar-border">
             <Link to="/">
-              <Button variant="ghost" className="w-full justify-start gap-3">
+              <Button variant="ghost" className="w-full justify-start gap-3 text-sidebar-foreground">
                 <LogOut className="h-5 w-5" />
                 الخروج
               </Button>
@@ -134,9 +132,9 @@ const AdminDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 min-h-screen">
+      <main className="flex-1 min-h-screen overflow-x-hidden">
         {/* Header */}
-        <header className="sticky top-0 z-30 bg-background border-b px-4 lg:px-8 py-4 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-background border-b px-3 lg:px-6 py-3 flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
@@ -145,14 +143,14 @@ const AdminDashboard = () => {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold">
+          <h1 className="text-lg font-bold">
             {menuItems.find((m) => m.id === activeSection)?.label || "لوحة التحكم"}
           </h1>
           <div />
         </header>
 
         {/* Content */}
-        <div className="p-4 lg:p-8">{renderSection()}</div>
+        <div className="p-3 lg:p-6">{renderSection()}</div>
       </main>
     </div>
   );

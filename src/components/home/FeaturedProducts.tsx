@@ -16,12 +16,6 @@ interface Product {
   is_featured: boolean | null;
 }
 
-interface ProductImage {
-  product_id: string;
-  image_url: string;
-  is_primary: boolean | null;
-}
-
 interface FeaturedProductsProps {
   title: string;
   showFeatured?: boolean;
@@ -61,7 +55,6 @@ const FeaturedProducts = ({
         return;
       }
 
-      // Fetch primary images for products
       const productIds = productsData.map((p) => p.id);
       const { data: imagesData } = await supabase
         .from("product_images")
@@ -88,17 +81,14 @@ const FeaturedProducts = ({
 
   if (isLoading) {
     return (
-      <section className="py-12">
-        <div className="container">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-right">
+      <section className="py-8">
+        <div className="container px-3">
+          <h2 className="text-xl font-bold text-foreground mb-4 text-right">
             {title}
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-[3/4] bg-muted animate-pulse rounded-lg"
-              />
+              <div key={i} className="h-32 bg-muted animate-pulse rounded-xl" />
             ))}
           </div>
         </div>
@@ -111,21 +101,19 @@ const FeaturedProducts = ({
   }
 
   return (
-    <section className="py-12">
-      <div className="container">
-        <div className="flex items-center justify-between mb-8">
+    <section className="py-8">
+      <div className="container px-3">
+        <div className="flex items-center justify-between mb-4">
           <Link to="/products">
-            <Button variant="ghost" className="gap-2">
+            <Button variant="ghost" size="sm" className="gap-1">
               عرض الكل
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-            {title}
-          </h2>
+          <h2 className="text-xl font-bold text-foreground">{title}</h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="space-y-3">
           {products.map((product) => (
             <ProductCard
               key={product.id}

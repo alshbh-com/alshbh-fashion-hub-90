@@ -1,9 +1,7 @@
 import { Link } from "react-router-dom";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { Heart, Star, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useCartContext } from "@/contexts/CartContext";
 import { useFavoritesContext } from "@/contexts/FavoritesContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,31 +26,9 @@ const ProductCard = ({
   rating,
   category,
 }: ProductCardProps) => {
-  const { addItem } = useCartContext();
   const { toggleItem, isFavorite } = useFavoritesContext();
   const { toast } = useToast();
   const isInFavorites = isFavorite(id);
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addItem({
-      productId: id,
-      name,
-      nameAr,
-      price,
-      discountPrice: discountPrice || undefined,
-      image,
-      color: "افتراضي",
-      colorHex: "#000000",
-      size: "M",
-      quantity: 1,
-    });
-    toast({
-      title: "تمت الإضافة",
-      description: `تم إضافة ${nameAr} إلى السلة`,
-    });
-  };
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -79,94 +55,91 @@ const ProductCard = ({
     : 0;
 
   return (
-    <Link to={`/product/${id}`}>
-      <Card className="group overflow-hidden border-border hover:shadow-luxury transition-all duration-300 cursor-pointer">
-        {/* Image Container */}
-        <div className="relative aspect-[3/4] overflow-hidden bg-muted">
-          <img
-            src={image || "/placeholder.svg"}
-            alt={nameAr}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-          
-          {/* Discount Badge */}
-          {discountPrice && (
-            <Badge className="absolute top-3 right-3 bg-destructive text-destructive-foreground">
-              خصم {discountPercentage}%
-            </Badge>
-          )}
+    <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-luxury transition-all duration-300">
+      <div className="flex flex-col sm:flex-row gap-3 p-3">
+        {/* Image */}
+        <Link to={`/product/${id}`} className="shrink-0">
+          <div className="relative w-full sm:w-28 h-32 sm:h-28 overflow-hidden rounded-lg bg-muted">
+            <img
+              src={image || "/placeholder.svg"}
+              alt={nameAr}
+              className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+            />
+            {discountPrice && (
+              <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-xs">
+                -{discountPercentage}%
+              </Badge>
+            )}
+          </div>
+        </Link>
 
-          {/* Category Badge */}
-          {category && (
-            <Badge variant="secondary" className="absolute top-3 left-3">
-              {category}
-            </Badge>
-          )}
+        {/* Content */}
+        <div className="flex-1 flex flex-col justify-between min-w-0" dir="rtl">
+          <div>
+            <Link to={`/product/${id}`}>
+              <h3 className="font-semibold text-foreground line-clamp-2 hover:text-primary transition-colors">
+                {nameAr}
+              </h3>
+            </Link>
+            
+            {category && (
+              <span className="text-xs text-muted-foreground">{category}</span>
+            )}
 
-          {/* Overlay Actions */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="absolute bottom-4 left-4 right-4 flex gap-2">
-              <Button
-                size="sm"
-                className="flex-1 bg-primary hover:bg-primary/90"
-                onClick={handleAddToCart}
-              >
-                <ShoppingCart className="h-4 w-4 ml-2" />
-                أضف للسلة
-              </Button>
+            {rating && (
+              <div className="flex items-center gap-1 mt-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-3 w-3 ${
+                      i < Math.floor(rating)
+                        ? "text-amber-500 fill-amber-500"
+                        : "text-muted-foreground"
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mt-2 gap-2">
+            {/* Price */}
+            <div className="flex items-center gap-2">
+              {discountPrice ? (
+                <>
+                  <span className="text-lg font-bold text-primary">
+                    {discountPrice} ج.م
+                  </span>
+                  <span className="text-sm text-muted-foreground line-through">
+                    {price}
+                  </span>
+                </>
+              ) : (
+                <span className="text-lg font-bold text-primary">{price} ج.م</span>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-1">
               <Button
                 size="icon"
-                variant={isInFavorites ? "default" : "outline"}
-                className={isInFavorites ? "bg-destructive hover:bg-destructive/90" : "bg-background/80 hover:bg-background"}
+                variant="ghost"
+                className={`h-8 w-8 ${isInFavorites ? "text-destructive" : ""}`}
                 onClick={handleToggleFavorite}
               >
                 <Heart className={`h-4 w-4 ${isInFavorites ? "fill-current" : ""}`} />
               </Button>
+              <Link to={`/product/${id}`}>
+                <Button size="sm" className="h-8 gap-1 text-xs">
+                  <Eye className="h-3 w-3" />
+                  التفاصيل
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
-
-        {/* Content */}
-        <CardContent className="p-4 space-y-2">
-          <h3 className="font-semibold text-foreground line-clamp-1 text-right">
-            {nameAr}
-          </h3>
-
-          {/* Rating */}
-          {rating && (
-            <div className="flex items-center justify-end gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < Math.floor(rating)
-                      ? "text-gold fill-gold"
-                      : "text-muted-foreground"
-                  }`}
-                />
-              ))}
-              <span className="text-sm text-muted-foreground mr-1">({rating})</span>
-            </div>
-          )}
-
-          {/* Price */}
-          <div className="flex items-center justify-end gap-2">
-            {discountPrice ? (
-              <>
-                <span className="text-lg font-bold text-primary">
-                  {discountPrice} ج.م
-                </span>
-                <span className="text-sm text-muted-foreground line-through">
-                  {price} ج.م
-                </span>
-              </>
-            ) : (
-              <span className="text-lg font-bold text-primary">{price} ج.م</span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
+      </div>
+    </div>
   );
 };
 

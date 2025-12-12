@@ -4,17 +4,17 @@ import { Phone, Mail, MapPin, Facebook, Instagram, Twitter } from "lucide-react"
 const Footer = () => {
   return (
     <footer className="bg-card border-t border-border mt-auto">
-      <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8" dir="rtl">
+      <div className="container py-8 px-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6" dir="rtl">
           {/* Brand Section */}
-          <div className="space-y-4">
-            <h3 className="text-2xl font-bold text-gradient font-cairo">
+          <div className="col-span-2 md:col-span-1 space-y-3">
+            <h3 className="text-lg font-bold text-gradient">
               Alshbh Fashion
             </h3>
-            <p className="text-muted-foreground leading-relaxed">
-              متجر الشبه للأزياء - نقدم لكم أفضل الملابس العصرية بأعلى جودة وأفضل الأسعار
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              متجر الشبه للأزياء - أفضل الملابس العصرية
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
@@ -28,9 +28,9 @@ const Footer = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-foreground">روابط سريعة</h4>
-            <nav className="flex flex-col gap-2">
+          <div className="space-y-3">
+            <h4 className="font-semibold text-foreground">روابط سريعة</h4>
+            <nav className="flex flex-col gap-2 text-sm">
               <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
                 الرئيسية
               </Link>
@@ -47,44 +47,41 @@ const Footer = () => {
           </div>
 
           {/* Customer Service */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-foreground">خدمة العملاء</h4>
-            <nav className="flex flex-col gap-2">
+          <div className="space-y-3">
+            <h4 className="font-semibold text-foreground">خدمة العملاء</h4>
+            <nav className="flex flex-col gap-2 text-sm">
               <Link to="/cart" className="text-muted-foreground hover:text-primary transition-colors">
                 سلة المشتريات
               </Link>
               <Link to="/favorites" className="text-muted-foreground hover:text-primary transition-colors">
                 المفضلة
               </Link>
-              <Link to="/checkout" className="text-muted-foreground hover:text-primary transition-colors">
-                إتمام الطلب
-              </Link>
             </nav>
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-foreground">تواصل معنا</h4>
-            <div className="space-y-3">
+          <div className="space-y-3">
+            <h4 className="font-semibold text-foreground">تواصل معنا</h4>
+            <div className="space-y-2 text-sm">
               <a
                 href="tel:01204486263"
-                className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Phone className="h-4 w-4" />
                 <span>01204486263</span>
               </a>
               <a
                 href="tel:01278006248"
-                className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors"
+                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
               >
                 <Phone className="h-4 w-4" />
                 <span>01278006248</span>
               </a>
-              <div className="flex items-center gap-3 text-muted-foreground">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>info@alshbhfashion.com</span>
+                <span>info@alshbh.com</span>
               </div>
-              <div className="flex items-center gap-3 text-muted-foreground">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <span>مصر</span>
               </div>
@@ -93,7 +90,7 @@ const Footer = () => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-8 border-t border-border text-center text-muted-foreground">
+        <div className="mt-6 pt-4 border-t border-border text-center text-muted-foreground text-sm">
           <p>© {new Date().getFullYear()} Alshbh Fashion. جميع الحقوق محفوظة</p>
         </div>
       </div>
