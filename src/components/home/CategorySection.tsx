@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { ChevronDown, ChevronUp, Grid3X3 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Category {
@@ -11,13 +13,13 @@ interface Category {
 const CategorySection = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchCategories = async () => {
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
-        .limit(6);
+        .select("*");
 
       if (!error && data) {
         setCategories(data);
@@ -28,65 +30,43 @@ const CategorySection = () => {
     fetchCategories();
   }, []);
 
-  if (isLoading) {
-    return (
-      <section className="py-12 bg-muted/30">
-        <div className="container">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-right">
-            تسوق حسب القسم
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="aspect-square bg-muted animate-pulse rounded-lg"
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (categories.length === 0) {
+  if (isLoading || categories.length === 0) {
     return null;
   }
 
-  // Category colors for visual appeal
-  const categoryColors = [
-    "from-burnt-brown to-burnt-brown-light",
-    "from-gold to-accent",
-    "from-silver to-silver-light",
-    "from-burnt-brown-dark to-burnt-brown",
-    "from-accent to-gold",
-    "from-burnt-brown-light to-gold",
-  ];
-
   return (
-    <section className="py-12 bg-muted/30">
+    <section className="py-4 bg-muted/30">
       <div className="container">
-        <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8 text-right">
-          تسوق حسب القسم
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category, index) => (
-            <Link
-              key={category.id}
-              to={`/products?category=${category.id}`}
-              className="group"
-            >
-              <div
-                className={`aspect-square rounded-xl bg-gradient-to-br ${
-                  categoryColors[index % categoryColors.length]
-                } p-6 flex items-center justify-center text-center transition-all duration-300 hover:scale-105 hover:shadow-luxury`}
-              >
-                <span className="text-lg md:text-xl font-bold text-white drop-shadow-md">
+        {/* Toggle Button */}
+        <Button
+          variant="outline"
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full justify-between gap-2 h-12"
+          dir="rtl"
+        >
+          <div className="flex items-center gap-2">
+            <Grid3X3 className="h-5 w-5" />
+            <span className="font-semibold">تصفح الأقسام ({categories.length})</span>
+          </div>
+          {isOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+        </Button>
+
+        {/* Categories Grid */}
+        {isOpen && (
+          <div className="mt-4 animate-fade-in" dir="rtl">
+            <div className="flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  to={`/products?category=${category.id}`}
+                  className="px-4 py-2 bg-primary/10 hover:bg-primary hover:text-primary-foreground rounded-full text-sm font-medium transition-all duration-200"
+                >
                   {category.name_ar}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

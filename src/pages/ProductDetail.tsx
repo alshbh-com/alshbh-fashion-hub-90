@@ -64,7 +64,6 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
       if (!id) return;
 
-      // Fetch product
       const { data: productData, error: productError } = await supabase
         .from("products")
         .select("*")
@@ -78,7 +77,6 @@ const ProductDetail = () => {
 
       setProduct(productData);
 
-      // Fetch images
       const { data: imagesData } = await supabase
         .from("product_images")
         .select("*")
@@ -87,7 +85,6 @@ const ProductDetail = () => {
 
       if (imagesData) setImages(imagesData);
 
-      // Fetch colors
       const { data: productColors } = await supabase
         .from("product_colors")
         .select("color_id")
@@ -102,11 +99,9 @@ const ProductDetail = () => {
 
         if (colorsData) {
           setColors(colorsData);
-          setSelectedColor(colorsData[0]);
         }
       }
 
-      // Fetch sizes
       const { data: productSizes } = await supabase
         .from("product_sizes")
         .select("size_id, price_adjustment")
@@ -127,7 +122,6 @@ const ProductDetail = () => {
               productSizes.find((ps) => ps.size_id === size.id)?.price_adjustment || 0,
           }));
           setSizes(sizesWithAdjustment);
-          setSelectedSize(sizesWithAdjustment[0]);
         }
       }
 
@@ -140,9 +134,9 @@ const ProductDetail = () => {
   if (isLoading || !product) {
     return (
       <Layout>
-        <div className="container py-8">
-          <div className="animate-pulse grid md:grid-cols-2 gap-8">
-            <div className="aspect-square bg-muted rounded-lg" />
+        <div className="container py-6">
+          <div className="animate-pulse grid md:grid-cols-2 gap-6">
+            <div className="aspect-square bg-muted rounded-xl" />
             <div className="space-y-4">
               <div className="h-8 bg-muted rounded w-3/4" />
               <div className="h-6 bg-muted rounded w-1/4" />
@@ -161,10 +155,21 @@ const ProductDetail = () => {
     : 0;
 
   const handleAddToCart = () => {
-    if (!selectedColor || !selectedSize) {
+    // Check if colors exist and none selected
+    if (colors.length > 0 && !selectedColor) {
       toast({
-        title: "خطأ",
-        description: "يرجى اختيار اللون والمقاس",
+        title: "مطلوب",
+        description: "يرجى اختيار اللون",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if sizes exist and none selected
+    if (sizes.length > 0 && !selectedSize) {
+      toast({
+        title: "مطلوب",
+        description: "يرجى اختيار المقاس",
         variant: "destructive",
       });
       return;
@@ -177,9 +182,9 @@ const ProductDetail = () => {
       price: product.price,
       discountPrice: product.discount_price || undefined,
       image: images[0]?.image_url || "/placeholder.svg",
-      color: selectedColor.name_ar,
-      colorHex: selectedColor.hex_code,
-      size: selectedSize.name,
+      color: selectedColor?.name_ar || "بدون لون",
+      colorHex: selectedColor?.hex_code || "#000000",
+      size: selectedSize?.name || "بدون مقاس",
       quantity,
     });
 
@@ -211,27 +216,27 @@ const ProductDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{product.name_ar} - Alshbh Fashion</title>
+        <title>{`${product.name_ar} - Alshbh Fashion`}</title>
         <meta name="description" content={product.description_ar || product.description || ""} />
       </Helmet>
 
       <Layout>
-        <div className="container py-8">
+        <div className="container py-4 px-3">
           {/* Back Button */}
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="mb-6"
+            className="mb-4"
+            size="sm"
           >
             <ArrowRight className="h-4 w-4 ml-2" />
             رجوع
           </Button>
 
-          <div className="grid md:grid-cols-2 gap-8 lg:gap-12" dir="rtl">
+          <div className="grid md:grid-cols-2 gap-6" dir="rtl">
             {/* Images Section */}
-            <div className="space-y-4">
-              {/* Main Image */}
-              <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+            <div className="space-y-3">
+              <div className="aspect-square overflow-hidden rounded-xl bg-muted">
                 <img
                   src={images[selectedImage]?.image_url || "/placeholder.svg"}
                   alt={product.name_ar}
@@ -239,14 +244,13 @@ const ProductDetail = () => {
                 />
               </div>
 
-              {/* Thumbnail Images */}
               {images.length > 1 && (
                 <div className="flex gap-2 overflow-x-auto pb-2">
                   {images.map((image, index) => (
                     <button
                       key={image.id}
                       onClick={() => setSelectedImage(index)}
-                      className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+                      className={`shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
                         selectedImage === index
                           ? "border-primary"
                           : "border-transparent"
@@ -264,35 +268,33 @@ const ProductDetail = () => {
             </div>
 
             {/* Product Info */}
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div>
-                <h1 className="text-3xl font-bold mb-2">{product.name_ar}</h1>
+                <h1 className="text-2xl font-bold mb-2">{product.name_ar}</h1>
                 
-                {/* Rating */}
                 {product.rating && (
-                  <div className="flex items-center gap-1 mb-4">
+                  <div className="flex items-center gap-1 mb-3">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-5 w-5 ${
+                        className={`h-4 w-4 ${
                           i < Math.floor(product.rating!)
-                            ? "text-gold fill-gold"
+                            ? "text-amber-500 fill-amber-500"
                             : "text-muted-foreground"
                         }`}
                       />
                     ))}
-                    <span className="text-muted-foreground mr-2">({product.rating})</span>
+                    <span className="text-muted-foreground mr-2 text-sm">({product.rating})</span>
                   </div>
                 )}
 
-                {/* Price */}
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl font-bold text-primary">
+                  <span className="text-2xl font-bold text-primary">
                     {finalPrice} ج.م
                   </span>
                   {product.discount_price && (
                     <>
-                      <span className="text-xl text-muted-foreground line-through">
+                      <span className="text-lg text-muted-foreground line-through">
                         {product.price} ج.م
                       </span>
                       <Badge className="bg-destructive">خصم {discountPercentage}%</Badge>
@@ -301,25 +303,26 @@ const ProductDetail = () => {
                 </div>
               </div>
 
-              {/* Description */}
               {(product.description_ar || product.description) && (
-                <p className="text-muted-foreground leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed text-sm">
                   {product.description_ar || product.description}
                 </p>
               )}
 
               {/* Colors */}
               {colors.length > 0 && (
-                <div className="space-y-3">
-                  <label className="font-medium">اللون: {selectedColor?.name_ar}</label>
-                  <div className="flex gap-2">
+                <div className="space-y-2">
+                  <label className="font-medium text-sm">
+                    اللون: {selectedColor?.name_ar || "اختر اللون"} <span className="text-destructive">*</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2">
                     {colors.map((color) => (
                       <button
                         key={color.id}
                         onClick={() => setSelectedColor(color)}
-                        className={`w-10 h-10 rounded-full border-2 transition-all ${
+                        className={`w-9 h-9 rounded-full border-2 transition-all ${
                           selectedColor?.id === color.id
-                            ? "border-primary scale-110"
+                            ? "border-primary scale-110 ring-2 ring-primary/30"
                             : "border-muted hover:scale-105"
                         }`}
                         style={{ backgroundColor: color.hex_code }}
@@ -332,23 +335,25 @@ const ProductDetail = () => {
 
               {/* Sizes */}
               {sizes.length > 0 && (
-                <div className="space-y-3">
-                  <label className="font-medium">المقاس: {selectedSize?.name}</label>
+                <div className="space-y-2">
+                  <label className="font-medium text-sm">
+                    المقاس: {selectedSize?.name || "اختر المقاس"} <span className="text-destructive">*</span>
+                  </label>
                   <div className="flex flex-wrap gap-2">
                     {sizes.map((size) => (
                       <button
                         key={size.id}
                         onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2 rounded-lg border-2 transition-all ${
+                        className={`px-3 py-1.5 rounded-lg border-2 transition-all text-sm ${
                           selectedSize?.id === size.id
                             ? "border-primary bg-primary text-primary-foreground"
                             : "border-muted hover:border-primary"
                         }`}
                       >
                         {size.name}
-                        {size.price_adjustment !== 0 && (
+                        {size.price_adjustment !== 0 && size.price_adjustment && (
                           <span className="text-xs mr-1">
-                            ({size.price_adjustment! > 0 ? "+" : ""}
+                            ({size.price_adjustment > 0 ? "+" : ""}
                             {size.price_adjustment} ج.م)
                           </span>
                         )}
@@ -359,21 +364,23 @@ const ProductDetail = () => {
               )}
 
               {/* Quantity */}
-              <div className="space-y-3">
-                <label className="font-medium">الكمية</label>
+              <div className="space-y-2">
+                <label className="font-medium text-sm">الكمية</label>
                 <div className="flex items-center gap-3">
                   <Button
                     variant="outline"
                     size="icon"
+                    className="h-9 w-9"
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     disabled={quantity <= 1}
                   >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
+                  <span className="text-lg font-semibold w-10 text-center">{quantity}</span>
                   <Button
                     variant="outline"
                     size="icon"
+                    className="h-9 w-9"
                     onClick={() => setQuantity(quantity + 1)}
                   >
                     <Plus className="h-4 w-4" />
@@ -382,7 +389,7 @@ const ProductDetail = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-2 pt-2">
                 <Button
                   size="lg"
                   className="flex-1"

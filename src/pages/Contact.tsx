@@ -131,7 +131,7 @@ const Contact = () => {
                     <div>
                       <p className="font-semibold">البريد الإلكتروني</p>
                       <p className="text-muted-foreground">
-                        info@alshbhfashion.com
+                        info@alshbh.com
                       </p>
                     </div>
                   </div>
