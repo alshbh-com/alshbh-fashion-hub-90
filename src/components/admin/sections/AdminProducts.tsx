@@ -58,6 +58,18 @@ interface ProductImage {
   sort_order: number | null;
 }
 
+interface ProductColor {
+  id?: string;
+  name: string;
+  hex_code: string;
+}
+
+interface ProductSize {
+  id?: string;
+  name: string;
+  price: number;
+}
+
 const AdminProducts = () => {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
@@ -68,6 +80,13 @@ const AdminProducts = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Colors and Sizes for the product
+  const [productColors, setProductColors] = useState<ProductColor[]>([]);
+  const [productSizes, setProductSizes] = useState<ProductSize[]>([]);
+  const [newColor, setNewColor] = useState({ name: "", hex_code: "#000000" });
+  const [newSize, setNewSize] = useState({ name: "", price: "" });
+
   const [formData, setFormData] = useState({
     name: "",
     name_ar: "",
@@ -89,7 +108,6 @@ const AdminProducts = () => {
 
     if (!error && data) {
       setProducts(data);
-      // Fetch images for all products
       const { data: imagesData } = await supabase
         .from("product_images")
         .select("*")
@@ -136,6 +154,35 @@ const AdminProducts = () => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   };
 
+  const addColor = () => {
+    if (!newColor.name.trim()) {
+      toast({ title: "خطأ", description: "يرجى إدخال اسم اللون", variant: "destructive" });
+      return;
+    }
+    setProductColors(prev => [...prev, { name: newColor.name, hex_code: newColor.hex_code }]);
+    setNewColor({ name: "", hex_code: "#000000" });
+  };
+
+  const removeColor = (index: number) => {
+    setProductColors(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const addSize = () => {
+    if (!newSize.name.trim()) {
+      toast({ title: "خطأ", description: "يرجى إدخال اسم المقاس", variant: "destructive" });
+      return;
+    }
+    setProductSizes(prev => [...prev, { 
+      name: newSize.name, 
+      price: parseFloat(newSize.price) || 0 
+    }]);
+    setNewSize({ name: "", price: "" });
+  };
+
+  const removeSize = (index: number) => {
+    setProductSizes(prev => prev.filter((_, i) => i !== index));
+  };
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -150,16 +197,59 @@ const AdminProducts = () => {
     });
     setEditingProduct(null);
     setUploadedImages([]);
+    setProductColors([]);
+    setProductSizes([]);
   };
 
-  const loadProductImages = async (productId: string) => {
-    const { data } = await supabase
+  const loadProductData = async (productId: string) => {
+    // Load images
+    const { data: imagesData } = await supabase
       .from("product_images")
       .select("*")
       .eq("product_id", productId);
     
-    if (data) {
-      setUploadedImages(data.map(img => img.image_url));
+    if (imagesData) {
+      setUploadedImages(imagesData.map(img => img.image_url));
+    }
+
+    // Load colors
+    const { data: colorsData } = await supabase
+      .from("product_colors")
+      .select("color_id")
+      .eq("product_id", productId);
+    
+    if (colorsData && colorsData.length > 0) {
+      const colorIds = colorsData.map(c => c.color_id);
+      const { data: colors } = await supabase
+        .from("colors")
+        .select("*")
+        .in("id", colorIds);
+      
+      if (colors) {
+        setProductColors(colors.map(c => ({ id: c.id, name: c.name_ar, hex_code: c.hex_code })));
+      }
+    }
+
+    // Load sizes
+    const { data: sizesData } = await supabase
+      .from("product_sizes")
+      .select("size_id, price_adjustment")
+      .eq("product_id", productId);
+    
+    if (sizesData && sizesData.length > 0) {
+      const sizeIds = sizesData.map(s => s.size_id);
+      const { data: sizes } = await supabase
+        .from("sizes")
+        .select("*")
+        .in("id", sizeIds);
+      
+      if (sizes) {
+        setProductSizes(sizes.map(s => ({
+          id: s.id,
+          name: s.name,
+          price: sizesData.find(sd => sd.size_id === s.id)?.price_adjustment || 0
+        })));
+      }
     }
   };
 
@@ -176,8 +266,80 @@ const AdminProducts = () => {
       is_active: product.is_active ?? true,
       is_featured: product.is_featured ?? false,
     });
-    await loadProductImages(product.id);
+    await loadProductData(product.id);
     setIsDialogOpen(true);
+  };
+
+  const saveColorsAndSizes = async (productId: string) => {
+    // Delete existing colors and sizes
+    await supabase.from("product_colors").delete().eq("product_id", productId);
+    await supabase.from("product_sizes").delete().eq("product_id", productId);
+
+    // Save colors
+    for (const color of productColors) {
+      // Check if color exists or create new one
+      let colorId = color.id;
+      if (!colorId) {
+        const { data: existingColor } = await supabase
+          .from("colors")
+          .select("id")
+          .eq("name_ar", color.name)
+          .maybeSingle();
+
+        if (existingColor) {
+          colorId = existingColor.id;
+        } else {
+          const { data: newColorData } = await supabase
+            .from("colors")
+            .insert({ name: color.name, name_ar: color.name, hex_code: color.hex_code })
+            .select()
+            .single();
+          
+          if (newColorData) {
+            colorId = newColorData.id;
+          }
+        }
+      }
+
+      if (colorId) {
+        await supabase
+          .from("product_colors")
+          .insert({ product_id: productId, color_id: colorId });
+      }
+    }
+
+    // Save sizes
+    for (const size of productSizes) {
+      // Check if size exists or create new one
+      let sizeId = size.id;
+      if (!sizeId) {
+        const { data: existingSize } = await supabase
+          .from("sizes")
+          .select("id")
+          .eq("name", size.name)
+          .maybeSingle();
+
+        if (existingSize) {
+          sizeId = existingSize.id;
+        } else {
+          const { data: newSizeData } = await supabase
+            .from("sizes")
+            .insert({ name: size.name })
+            .select()
+            .single();
+          
+          if (newSizeData) {
+            sizeId = newSizeData.id;
+          }
+        }
+      }
+
+      if (sizeId) {
+        await supabase
+          .from("product_sizes")
+          .insert({ product_id: productId, size_id: sizeId, price_adjustment: size.price });
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -206,7 +368,7 @@ const AdminProducts = () => {
         return;
       }
 
-      // Update images - delete old and insert new
+      // Update images
       await supabase.from("product_images").delete().eq("product_id", editingProduct.id);
       
       if (uploadedImages.length > 0) {
@@ -218,6 +380,9 @@ const AdminProducts = () => {
         }));
         await supabase.from("product_images").insert(imagesData);
       }
+
+      // Save colors and sizes
+      await saveColorsAndSizes(editingProduct.id);
 
       toast({ title: "تم التحديث", description: "تم تحديث المنتج بنجاح" });
       fetchProducts();
@@ -241,6 +406,9 @@ const AdminProducts = () => {
         }));
         await supabase.from("product_images").insert(imagesData);
       }
+
+      // Save colors and sizes
+      await saveColorsAndSizes(data.id);
 
       toast({ title: "تمت الإضافة", description: "تم إضافة المنتج بنجاح" });
       fetchProducts();
@@ -286,40 +454,23 @@ const AdminProducts = () => {
               <DialogTitle>{editingProduct ? "تعديل المنتج" : "إضافة منتج جديد"}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>اسم المنتج (إنجليزي)</Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>اسم المنتج (عربي)</Label>
-                  <Input
-                    value={formData.name_ar}
-                    onChange={(e) => setFormData({ ...formData, name_ar: e.target.value })}
-                    required
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label>اسم المنتج</Label>
+                <Input
+                  value={formData.name_ar}
+                  onChange={(e) => setFormData({ ...formData, name_ar: e.target.value, name: e.target.value })}
+                  required
+                  placeholder="أدخل اسم المنتج"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>الوصف (إنجليزي)</Label>
-                  <Textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>الوصف (عربي)</Label>
-                  <Textarea
-                    value={formData.description_ar}
-                    onChange={(e) => setFormData({ ...formData, description_ar: e.target.value })}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label>الوصف</Label>
+                <Textarea
+                  value={formData.description_ar}
+                  onChange={(e) => setFormData({ ...formData, description_ar: e.target.value, description: e.target.value })}
+                  placeholder="أدخل وصف المنتج"
+                />
               </div>
 
               <div className="grid grid-cols-3 gap-4">
@@ -330,6 +481,7 @@ const AdminProducts = () => {
                     value={formData.price}
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     required
+                    placeholder="0"
                   />
                 </div>
                 <div className="space-y-2">
@@ -338,6 +490,7 @@ const AdminProducts = () => {
                     type="number"
                     value={formData.discount_price}
                     onChange={(e) => setFormData({ ...formData, discount_price: e.target.value })}
+                    placeholder="اختياري"
                   />
                 </div>
                 <div className="space-y-2">
@@ -400,6 +553,89 @@ const AdminProducts = () => {
                 />
               </div>
 
+              {/* Colors Section */}
+              <div className="space-y-3 border rounded-lg p-4">
+                <Label className="text-lg font-semibold">الألوان المتاحة</Label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {productColors.map((color, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-muted rounded-full px-3 py-1">
+                      <div 
+                        className="w-5 h-5 rounded-full border" 
+                        style={{ backgroundColor: color.hex_code }}
+                      />
+                      <span className="text-sm">{color.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeColor(index)}
+                        className="text-destructive hover:text-destructive/80"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="اسم اللون"
+                    value={newColor.name}
+                    onChange={(e) => setNewColor({ ...newColor, name: e.target.value })}
+                    className="flex-1"
+                  />
+                  <input
+                    type="color"
+                    value={newColor.hex_code}
+                    onChange={(e) => setNewColor({ ...newColor, hex_code: e.target.value })}
+                    className="w-12 h-10 rounded cursor-pointer"
+                  />
+                  <Button type="button" onClick={addColor} variant="outline">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Sizes Section */}
+              <div className="space-y-3 border rounded-lg p-4">
+                <Label className="text-lg font-semibold">المقاسات المتاحة (مع السعر الإضافي)</Label>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {productSizes.map((size, index) => (
+                    <div key={index} className="flex items-center gap-2 bg-muted rounded-full px-3 py-1">
+                      <span className="text-sm font-medium">{size.name}</span>
+                      {size.price > 0 && (
+                        <span className="text-xs text-primary">+{size.price} ج.م</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeSize(index)}
+                        className="text-destructive hover:text-destructive/80"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="المقاس"
+                    value={newSize.name}
+                    onChange={(e) => setNewSize({ ...newSize, name: e.target.value })}
+                    className="flex-1"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="السعر الإضافي"
+                    value={newSize.price}
+                    onChange={(e) => setNewSize({ ...newSize, price: e.target.value })}
+                    className="w-32"
+                  />
+                  <Button type="button" onClick={addSize} variant="outline">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  * السعر الإضافي يُضاف إلى سعر المنتج الأساسي عند اختيار هذا المقاس
+                </p>
+              </div>
+
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Switch
@@ -433,7 +669,6 @@ const AdminProducts = () => {
               <TableHead className="text-right">القسم</TableHead>
               <TableHead className="text-right">السعر</TableHead>
               <TableHead className="text-center">الحالة</TableHead>
-              <TableHead className="text-center">مميز</TableHead>
               <TableHead className="text-center">إجراءات</TableHead>
             </TableRow>
           </TableHeader>
@@ -451,7 +686,6 @@ const AdminProducts = () => {
                     )}
                     <div>
                       <p className="font-medium">{product.name_ar}</p>
-                      <p className="text-sm text-muted-foreground">{product.name}</p>
                     </div>
                   </div>
                 </TableCell>
@@ -476,9 +710,6 @@ const AdminProducts = () => {
                   >
                     {product.is_active ? "نشط" : "غير نشط"}
                   </span>
-                </TableCell>
-                <TableCell className="text-center">
-                  {product.is_featured ? "⭐" : "-"}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center justify-center gap-2">

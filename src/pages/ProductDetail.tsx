@@ -148,8 +148,11 @@ const ProductDetail = () => {
     );
   }
 
-  const currentPrice = product.discount_price || product.price;
-  const finalPrice = currentPrice + (selectedSize?.price_adjustment || 0);
+  // Calculate price: base product price + size additional price
+  const basePrice = product.discount_price || product.price;
+  const sizeAdditionalPrice = selectedSize?.price_adjustment || 0;
+  const unitPrice = basePrice + sizeAdditionalPrice;
+  const totalPrice = unitPrice * quantity;
   const discountPercentage = product.discount_price
     ? Math.round(((product.price - product.discount_price) / product.price) * 100)
     : 0;
@@ -288,17 +291,29 @@ const ProductDetail = () => {
                   </div>
                 )}
 
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-primary">
-                    {finalPrice} ج.م
-                  </span>
-                  {product.discount_price && (
-                    <>
-                      <span className="text-lg text-muted-foreground line-through">
-                        {product.price} ج.م
-                      </span>
-                      <Badge className="bg-destructive">خصم {discountPercentage}%</Badge>
-                    </>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl font-bold text-primary">
+                      {unitPrice} ج.م
+                    </span>
+                    {product.discount_price && (
+                      <>
+                        <span className="text-lg text-muted-foreground line-through">
+                          {product.price + sizeAdditionalPrice} ج.م
+                        </span>
+                        <Badge className="bg-destructive">خصم {discountPercentage}%</Badge>
+                      </>
+                    )}
+                  </div>
+                  {sizeAdditionalPrice > 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      (سعر المنتج: {basePrice} + المقاس: {sizeAdditionalPrice})
+                    </p>
+                  )}
+                  {quantity > 1 && (
+                    <p className="text-lg font-semibold text-primary">
+                      الإجمالي: {totalPrice} ج.م
+                    </p>
                   )}
                 </div>
               </div>
