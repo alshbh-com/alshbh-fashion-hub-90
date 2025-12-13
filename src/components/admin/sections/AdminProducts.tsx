@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2, Loader2, Image as ImageIcon } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Edit, Trash2, Loader2, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,13 +50,24 @@ interface Category {
   name_ar: string;
 }
 
+interface ProductImage {
+  id: string;
+  product_id: string;
+  image_url: string;
+  is_primary: boolean | null;
+  sort_order: number | null;
+}
+
 const AdminProducts = () => {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [productImages, setProductImages] = useState<Record<string, ProductImage[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     name: "",
     name_ar: "",
@@ -78,6 +89,22 @@ const AdminProducts = () => {
 
     if (!error && data) {
       setProducts(data);
+      // Fetch images for all products
+      const { data: imagesData } = await supabase
+        .from("product_images")
+        .select("*")
+        .in("product_id", data.map(p => p.id));
+      
+      if (imagesData) {
+        const imagesMap: Record<string, ProductImage[]> = {};
+        imagesData.forEach(img => {
+          if (!imagesMap[img.product_id]) {
+            imagesMap[img.product_id] = [];
+          }
+          imagesMap[img.product_id].push(img);
+        });
+        setProductImages(imagesMap);
+      }
     }
     setIsLoading(false);
   };
@@ -92,6 +119,23 @@ const AdminProducts = () => {
     fetchCategories();
   }, []);
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadedImages(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -105,9 +149,21 @@ const AdminProducts = () => {
       is_featured: false,
     });
     setEditingProduct(null);
+    setUploadedImages([]);
   };
 
-  const handleEdit = (product: Product) => {
+  const loadProductImages = async (productId: string) => {
+    const { data } = await supabase
+      .from("product_images")
+      .select("*")
+      .eq("product_id", productId);
+    
+    if (data) {
+      setUploadedImages(data.map(img => img.image_url));
+    }
+  };
+
+  const handleEdit = async (product: Product) => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
@@ -120,6 +176,7 @@ const AdminProducts = () => {
       is_active: product.is_active ?? true,
       is_featured: product.is_featured ?? false,
     });
+    await loadProductImages(product.id);
     setIsDialogOpen(true);
   };
 
@@ -146,23 +203,49 @@ const AdminProducts = () => {
 
       if (error) {
         toast({ title: "خطأ", description: "فشل تحديث المنتج", variant: "destructive" });
-      } else {
-        toast({ title: "تم التحديث", description: "تم تحديث المنتج بنجاح" });
-        fetchProducts();
-        setIsDialogOpen(false);
-        resetForm();
+        return;
       }
-    } else {
-      const { error } = await supabase.from("products").insert(productData);
 
-      if (error) {
-        toast({ title: "خطأ", description: "فشل إضافة المنتج", variant: "destructive" });
-      } else {
-        toast({ title: "تمت الإضافة", description: "تم إضافة المنتج بنجاح" });
-        fetchProducts();
-        setIsDialogOpen(false);
-        resetForm();
+      // Update images - delete old and insert new
+      await supabase.from("product_images").delete().eq("product_id", editingProduct.id);
+      
+      if (uploadedImages.length > 0) {
+        const imagesData = uploadedImages.map((img, index) => ({
+          product_id: editingProduct.id,
+          image_url: img,
+          is_primary: index === 0,
+          sort_order: index,
+        }));
+        await supabase.from("product_images").insert(imagesData);
       }
+
+      toast({ title: "تم التحديث", description: "تم تحديث المنتج بنجاح" });
+      fetchProducts();
+      setIsDialogOpen(false);
+      resetForm();
+    } else {
+      const { data, error } = await supabase.from("products").insert(productData).select().single();
+
+      if (error || !data) {
+        toast({ title: "خطأ", description: "فشل إضافة المنتج", variant: "destructive" });
+        return;
+      }
+
+      // Insert images
+      if (uploadedImages.length > 0) {
+        const imagesData = uploadedImages.map((img, index) => ({
+          product_id: data.id,
+          image_url: img,
+          is_primary: index === 0,
+          sort_order: index,
+        }));
+        await supabase.from("product_images").insert(imagesData);
+      }
+
+      toast({ title: "تمت الإضافة", description: "تم إضافة المنتج بنجاح" });
+      fetchProducts();
+      setIsDialogOpen(false);
+      resetForm();
     }
   };
 
@@ -277,6 +360,46 @@ const AdminProducts = () => {
                 </div>
               </div>
 
+              {/* Image Upload Section */}
+              <div className="space-y-3 border rounded-lg p-4">
+                <Label className="text-lg font-semibold">صور المنتج</Label>
+                <div className="flex flex-wrap gap-3">
+                  {uploadedImages.map((img, index) => (
+                    <div key={index} className="relative w-20 h-20">
+                      <img src={img} alt="" className="w-full h-full object-cover rounded-lg" />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-destructive text-white rounded-full p-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                      {index === 0 && (
+                        <span className="absolute bottom-0 left-0 right-0 bg-primary text-white text-xs text-center rounded-b-lg">
+                          رئيسية
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-20 h-20 border-2 border-dashed border-muted-foreground rounded-lg flex flex-col items-center justify-center hover:border-primary transition-colors"
+                  >
+                    <Upload className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">رفع</span>
+                  </button>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </div>
+
               <div className="flex items-center gap-6">
                 <div className="flex items-center gap-2">
                   <Switch
@@ -318,9 +441,18 @@ const AdminProducts = () => {
             {products.map((product) => (
               <TableRow key={product.id}>
                 <TableCell>
-                  <div>
-                    <p className="font-medium">{product.name_ar}</p>
-                    <p className="text-sm text-muted-foreground">{product.name}</p>
+                  <div className="flex items-center gap-3">
+                    {productImages[product.id]?.[0] && (
+                      <img 
+                        src={productImages[product.id][0].image_url} 
+                        alt={product.name_ar}
+                        className="w-12 h-12 object-cover rounded-lg"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium">{product.name_ar}</p>
+                      <p className="text-sm text-muted-foreground">{product.name}</p>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell>

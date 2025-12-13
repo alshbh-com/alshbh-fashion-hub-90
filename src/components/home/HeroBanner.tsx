@@ -103,13 +103,17 @@ const HeroBanner = () => {
               {currentAd.description_ar || currentAd.description}
             </p>
           )}
-          {currentAd.link && (
-            <a href={currentAd.link}>
-              <Button size="lg" className="shadow-luxury mt-4">
-                تسوق الآن
-              </Button>
-            </a>
-          )}
+          <Button 
+            size="lg" 
+            className="shadow-luxury mt-4"
+            onClick={() => {
+              if (currentAd.link) {
+                window.location.href = currentAd.link;
+              }
+            }}
+          >
+            تسوق الآن
+          </Button>
         </div>
       </div>
 
