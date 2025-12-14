@@ -4,14 +4,6 @@ import { Helmet } from "react-helmet-async";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { useCartContext } from "@/contexts/CartContext";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 const Cart = () => {
   const { items, removeItem, updateQuantity, subtotal, itemCount, clearCart } = useCartContext();
@@ -20,7 +12,8 @@ const Cart = () => {
     return (
       <>
         <Helmet>
-          <title>سلة المشتريات - Alshbh Fashion</title>
+          <title>سلة المشتريات - الشبح فاشون Alshbh Fashion</title>
+          <meta name="description" content="سلة المشتريات - الشبح فاشون Alshbh Fashion. أكمل طلبك الآن واستمتع بأفضل العروض." />
         </Helmet>
         <Layout>
           <div className="container py-16 text-center">
@@ -44,130 +37,130 @@ const Cart = () => {
   return (
     <>
       <Helmet>
-        <title>{`سلة المشتريات (${itemCount || 0}) - Alshbh Fashion`}</title>
+        <title>{`سلة المشتريات (${itemCount || 0}) - الشبح فاشون Alshbh Fashion`}</title>
+        <meta name="description" content="سلة المشتريات - الشبح فاشون Alshbh Fashion. أكمل طلبك الآن واستمتع بأفضل العروض." />
       </Helmet>
 
       <Layout>
-        <div className="container py-8">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-right">سلة المشتريات</h1>
+        <div className="container py-4 px-3">
+          <div className="flex items-center justify-between mb-4" dir="rtl">
+            <h1 className="text-xl sm:text-2xl font-bold">سلة المشتريات</h1>
             <Button
               variant="destructive"
               size="sm"
               onClick={clearCart}
-              className="gap-2"
+              className="gap-1 text-xs sm:text-sm"
             >
-              <Trash className="h-4 w-4" />
-              مسح السلة
+              <Trash className="h-3 w-3 sm:h-4 sm:w-4" />
+              مسح
             </Button>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Cart Items Table */}
-            <div className="lg:col-span-2">
-              <div className="bg-card rounded-lg border overflow-hidden">
-                <Table dir="rtl">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="text-right">المنتج</TableHead>
-                      <TableHead className="text-center">اللون</TableHead>
-                      <TableHead className="text-center">المقاس</TableHead>
-                      <TableHead className="text-center">السعر</TableHead>
-                      <TableHead className="text-center">الكمية</TableHead>
-                      <TableHead className="text-center">الإجمالي</TableHead>
-                      <TableHead className="text-center">حذف</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {items.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>
-                          <Link
-                            to={`/product/${item.productId}`}
-                            className="flex items-center gap-3"
-                          >
-                            <img
-                              src={item.image}
-                              alt={item.nameAr}
-                              className="w-16 h-16 object-cover rounded-lg"
-                            />
-                            <span className="font-medium hover:text-primary transition-colors line-clamp-2">
-                              {item.nameAr}
+          <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
+            {/* Cart Items - Mobile Friendly */}
+            <div className="lg:col-span-2 space-y-3">
+              {items.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="bg-card rounded-lg border p-3 sm:p-4"
+                  dir="rtl"
+                >
+                  <div className="flex gap-3">
+                    {/* Product Image */}
+                    <Link to={`/product/${item.productId}`} className="shrink-0">
+                      <img
+                        src={item.image}
+                        alt={item.nameAr}
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg"
+                      />
+                    </Link>
+                    
+                    {/* Product Details */}
+                    <div className="flex-1 min-w-0">
+                      <Link to={`/product/${item.productId}`}>
+                        <h3 className="font-medium text-sm sm:text-base hover:text-primary transition-colors line-clamp-2">
+                          {item.nameAr}
+                        </h3>
+                      </Link>
+                      
+                      <div className="flex items-center gap-2 mt-1 text-xs sm:text-sm text-muted-foreground">
+                        <span
+                          className="w-4 h-4 rounded-full border shrink-0"
+                          style={{ backgroundColor: item.colorHex }}
+                        />
+                        <span>{item.color}</span>
+                        <span>•</span>
+                        <span>{item.size}</span>
+                      </div>
+                      
+                      {/* Price */}
+                      <div className="mt-2">
+                        {item.discountPrice ? (
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-primary text-sm sm:text-base">
+                              {item.discountPrice} ج.م
                             </span>
-                          </Link>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            <span
-                              className="w-5 h-5 rounded-full border"
-                              style={{ backgroundColor: item.colorHex }}
-                            />
-                            <span className="text-sm">{item.color}</span>
+                            <span className="text-xs text-muted-foreground line-through">
+                              {item.price}
+                            </span>
                           </div>
-                        </TableCell>
-                        <TableCell className="text-center font-medium">
-                          {item.size}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {item.discountPrice ? (
-                            <div className="flex flex-col">
-                              <span className="font-bold text-primary">
-                                {item.discountPrice} ج.م
-                              </span>
-                              <span className="text-xs text-muted-foreground line-through">
-                                {item.price} ج.م
-                              </span>
-                            </div>
-                          ) : (
-                            <span className="font-bold text-primary">
-                              {item.price} ج.م
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-center gap-1">
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() =>
-                                updateQuantity(item.id, Math.max(1, item.quantity - 1))
-                              }
-                              disabled={item.quantity <= 1}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="w-8 text-center font-medium">
-                              {item.quantity}
-                            </span>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="h-7 w-7"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center font-bold text-primary">
-                          {((item.discountPrice || item.price) * item.quantity).toFixed(0)} ج.م
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => removeItem(item.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                        ) : (
+                          <span className="font-bold text-primary text-sm sm:text-base">
+                            {item.price} ج.م
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* Delete Button */}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="shrink-0 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => removeItem(item.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {/* Quantity & Subtotal Row */}
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() =>
+                          updateQuantity(item.id, Math.max(1, item.quantity - 1))
+                        }
+                        disabled={item.quantity <= 1}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <span className="w-8 text-center font-medium">
+                        {item.quantity}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                    
+                    {/* Subtotal */}
+                    <div className="text-left">
+                      <span className="text-xs text-muted-foreground">الإجمالي:</span>
+                      <p className="font-bold text-primary">
+                        {((item.discountPrice || item.price) * item.quantity).toFixed(0)} ج.م
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Order Summary */}

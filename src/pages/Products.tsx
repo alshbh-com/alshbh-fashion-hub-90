@@ -188,8 +188,9 @@ const Products = () => {
   return (
     <>
       <Helmet>
-        <title>المنتجات - Alshbh Fashion</title>
-        <meta name="description" content="تصفح جميع منتجات Alshbh Fashion من ملابس عصرية وأزياء راقية" />
+        <title>المنتجات - الشبح فاشون Alshbh Fashion</title>
+        <meta name="description" content="تصفح جميع منتجات الشبح فاشون Alshbh Fashion من ملابس عصرية وأزياء راقية بأفضل الأسعار" />
+        <meta name="keywords" content="الشبح فاشون, منتجات, ملابس, أزياء عصرية" />
       </Helmet>
 
       <Layout>

@@ -6,11 +6,12 @@ const About = () => {
   return (
     <>
       <Helmet>
-        <title>من نحن - Alshbh Fashion</title>
+        <title>من نحن - الشبح فاشون Alshbh Fashion</title>
         <meta
           name="description"
-          content="تعرف على متجر Alshbh Fashion - متجر الأزياء العصرية الرائد في مصر"
+          content="تعرف على متجر الشبح فاشون Alshbh Fashion - متجر الأزياء العصرية الرائد في مصر. نقدم أفضل الملابس بأعلى جودة."
         />
+        <meta name="keywords" content="الشبح فاشون, من نحن, Alshbh Fashion, متجر ملابس مصر" />
       </Helmet>
 
       <Layout>

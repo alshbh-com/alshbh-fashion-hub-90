@@ -58,13 +58,13 @@ const ProductCard = ({
     <div className="bg-card rounded-xl border border-border overflow-hidden hover:shadow-luxury transition-all duration-300">
       <div className="flex flex-col sm:flex-row gap-3 p-3">
         {/* Image - Full display without cropping */}
-        <Link to={`/product/${id}`} className="shrink-0">
-          <div className="relative w-full sm:w-32 bg-muted rounded-lg overflow-hidden">
+        <Link to={`/product/${id}`} className="shrink-0 w-full sm:w-40">
+          <div className="relative w-full bg-muted rounded-lg overflow-hidden">
             <img
               src={image || "/placeholder.svg"}
               alt={nameAr}
-              className="w-full h-auto object-contain transition-transform duration-300 hover:scale-105"
-              style={{ maxHeight: '200px', minHeight: '120px' }}
+              className="w-full h-full object-contain transition-transform duration-300 hover:scale-105"
+              style={{ aspectRatio: '1/1' }}
             />
             {discountPrice && (
               <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground text-xs">

@@ -35,7 +35,8 @@ const Favorites = () => {
     return (
       <>
         <Helmet>
-          <title>المفضلة - Alshbh Fashion</title>
+          <title>المفضلة - الشبح فاشون Alshbh Fashion</title>
+          <meta name="description" content="قائمة المفضلة - الشبح فاشون Alshbh Fashion. احفظ منتجاتك المفضلة." />
         </Helmet>
         <Layout>
           <div className="container py-16 text-center">
@@ -59,7 +60,8 @@ const Favorites = () => {
   return (
     <>
       <Helmet>
-        <title>المفضلة ({items.length}) - Alshbh Fashion</title>
+        <title>المفضلة ({items.length}) - الشبح فاشون Alshbh Fashion</title>
+        <meta name="description" content="قائمة المفضلة - الشبح فاشون Alshbh Fashion. احفظ منتجاتك المفضلة." />
       </Helmet>
 
       <Layout>

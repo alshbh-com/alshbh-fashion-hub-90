@@ -191,7 +191,8 @@ const Checkout = () => {
   return (
     <>
       <Helmet>
-        <title>إتمام الطلب - Alshbh Fashion</title>
+        <title>إتمام الطلب - الشبح فاشون Alshbh Fashion</title>
+        <meta name="description" content="إتمام الطلب - الشبح فاشون Alshbh Fashion. دفع عند الاستلام وتوصيل لجميع المحافظات." />
       </Helmet>
 
       <Layout>

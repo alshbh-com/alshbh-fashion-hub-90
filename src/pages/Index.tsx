@@ -8,11 +8,12 @@ const Index = () => {
   return (
     <>
       <Helmet>
-        <title>Alshbh Fashion - متجر الأزياء العصرية</title>
+        <title>الشبح فاشون - Alshbh Fashion | متجر الأزياء العصرية في مصر</title>
         <meta
           name="description"
-          content="تسوق أفضل الملابس العصرية من Alshbh Fashion. أعلى جودة وأفضل الأسعار مع خدمة توصيل لجميع أنحاء مصر."
+          content="الشبح فاشون Alshbh Fashion - تسوق أفضل الملابس العصرية. أعلى جودة وأفضل الأسعار مع خدمة توصيل لجميع أنحاء مصر. متجر الشبح فاشون للأزياء."
         />
+        <meta name="keywords" content="الشبح فاشون, Alshbh Fashion, ملابس, أزياء, متجر ملابس, ملابس عصرية, مصر" />
       </Helmet>
       
       <Layout>

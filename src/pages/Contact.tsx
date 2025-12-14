@@ -47,11 +47,12 @@ const Contact = () => {
   return (
     <>
       <Helmet>
-        <title>اتصل بنا - Alshbh Fashion</title>
+        <title>اتصل بنا - الشبح فاشون Alshbh Fashion</title>
         <meta
           name="description"
-          content="تواصل مع فريق Alshbh Fashion - نحن هنا لمساعدتك"
+          content="تواصل مع فريق الشبح فاشون Alshbh Fashion - نحن هنا لمساعدتك. خدمة عملاء متميزة على مدار الساعة."
         />
+        <meta name="keywords" content="الشبح فاشون, اتصل بنا, تواصل, خدمة عملاء" />
       </Helmet>
 
       <Layout>
@@ -131,7 +132,7 @@ const Contact = () => {
                     <div>
                       <p className="font-semibold">البريد الإلكتروني</p>
                       <p className="text-muted-foreground">
-                        info@alshbh.com
+                        alshbh@alshbh.store
                       </p>
                     </div>
                   </div>
