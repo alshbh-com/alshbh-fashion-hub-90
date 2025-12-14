@@ -93,22 +93,25 @@ const Cart = () => {
                         <span>{item.size}</span>
                       </div>
                       
-                      {/* Price */}
+                      {/* Price - سعر الوحدة = سعر المنتج + سعر المقاس */}
                       <div className="mt-2">
-                        {item.discountPrice ? (
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-primary text-sm sm:text-base">
-                              {item.discountPrice} ج.م
-                            </span>
-                            <span className="text-xs text-muted-foreground line-through">
-                              {item.price}
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="font-bold text-primary text-sm sm:text-base">
-                            {item.price} ج.م
-                          </span>
-                        )}
+                        {(() => {
+                          const basePrice = item.discountPrice || item.price;
+                          const sizePrice = item.sizePrice || 0;
+                          const unitPrice = basePrice + sizePrice;
+                          return (
+                            <div className="space-y-0.5">
+                              <span className="font-bold text-primary text-sm sm:text-base">
+                                {unitPrice} ج.م
+                              </span>
+                              {sizePrice > 0 && (
+                                <p className="text-xs text-muted-foreground">
+                                  (المنتج: {basePrice} + المقاس: {sizePrice})
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                     
@@ -155,7 +158,7 @@ const Cart = () => {
                     <div className="text-left">
                       <span className="text-xs text-muted-foreground">الإجمالي:</span>
                       <p className="font-bold text-primary">
-                        {((item.discountPrice || item.price) * item.quantity).toFixed(0)} ج.م
+                        {(((item.discountPrice || item.price) + (item.sizePrice || 0)) * item.quantity).toFixed(0)} ج.م
                       </p>
                     </div>
                   </div>

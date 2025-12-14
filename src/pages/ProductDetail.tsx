@@ -184,6 +184,7 @@ const ProductDetail = () => {
       nameAr: product.name_ar,
       price: product.price,
       discountPrice: product.discount_price || undefined,
+      sizePrice: selectedSize?.price_adjustment || 0, // سعر المقاس الإضافي
       image: images[0]?.image_url || "/placeholder.svg",
       color: selectedColor?.name_ar || "بدون لون",
       colorHex: selectedColor?.hex_code || "#000000",
