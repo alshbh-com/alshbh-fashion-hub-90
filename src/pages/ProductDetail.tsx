@@ -219,8 +219,9 @@ const ProductDetail = () => {
   return (
     <>
       <Helmet>
-        <title>{`${product.name_ar} - Alshbh Fashion`}</title>
-        <meta name="description" content={product.description_ar || product.description || ""} />
+        <title>{`${product.name_ar} - الشبح فاشون Alshbh Fashion`}</title>
+        <meta name="description" content={`${product.name_ar} - الشبح فاشون Alshbh Fashion. ${product.description_ar || product.description || "تسوق الآن بأفضل الأسعار."}`} />
+        <meta name="keywords" content={`الشبح فاشون, ${product.name_ar}, Alshbh Fashion`} />
       </Helmet>
 
       <Layout>

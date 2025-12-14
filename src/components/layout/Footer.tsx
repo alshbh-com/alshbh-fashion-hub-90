@@ -15,7 +15,7 @@ const Footer = () => {
               متجر الشبه للأزياء - أفضل الملابس العصرية
             </p>
             <div className="flex gap-3">
-              <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
+              <a href="https://www.facebook.com/share/1Gz16PBfU1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
                 <Facebook className="h-5 w-5" />
               </a>
               <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
@@ -79,7 +79,7 @@ const Footer = () => {
               </a>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail className="h-4 w-4" />
-                <span>info@alshbh.com</span>
+                <span>alshbh@alshbh.store</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
