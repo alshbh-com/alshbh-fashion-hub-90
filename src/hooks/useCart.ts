@@ -7,6 +7,7 @@ export interface CartItem {
   nameAr: string;
   price: number;
   discountPrice?: number;
+  sizePrice?: number; // سعر المقاس الإضافي
   image: string;
   color: string;
   colorHex: string;
@@ -84,10 +85,12 @@ export const useCart = () => {
     setItems([]);
   }, []);
 
-  // Calculate subtotal
+  // Calculate subtotal - product price + size price
   const subtotal = items.reduce((total, item) => {
-    const price = item.discountPrice || item.price;
-    return total + price * item.quantity;
+    const basePrice = item.discountPrice || item.price;
+    const sizePrice = item.sizePrice || 0;
+    const unitPrice = basePrice + sizePrice;
+    return total + unitPrice * item.quantity;
   }, 0);
 
   // Get total item count

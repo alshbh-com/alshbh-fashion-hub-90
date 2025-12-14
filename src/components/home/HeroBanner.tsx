@@ -56,7 +56,7 @@ const HeroBanner = () => {
 
   if (isLoading) {
     return (
-      <div className="relative h-[500px] md:h-[600px] bg-muted animate-pulse flex items-center justify-center">
+      <div className="relative h-[280px] md:h-[350px] bg-muted animate-pulse flex items-center justify-center">
         <div className="text-muted-foreground">جاري التحميل...</div>
       </div>
     );
@@ -64,15 +64,15 @@ const HeroBanner = () => {
 
   if (ads.length === 0) {
     return (
-      <div className="relative h-[500px] md:h-[600px] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-        <div className="text-center space-y-4 p-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-gradient font-cairo">
-            Alshbh Fashion
+      <div className="relative h-[280px] md:h-[350px] bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+        <div className="text-center space-y-3 p-6">
+          <h1 className="text-2xl md:text-4xl font-bold text-gradient font-cairo">
+            الشبح فاشون
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             أفضل الملابس العصرية بأعلى جودة
           </p>
-          <Button size="lg" className="mt-4">
+          <Button size="default" className="mt-2">
             تسوق الآن
           </Button>
         </div>
@@ -83,7 +83,7 @@ const HeroBanner = () => {
   const currentAd = ads[currentIndex];
 
   return (
-    <div className="relative h-[500px] md:h-[600px] overflow-hidden">
+    <div className="relative h-[280px] md:h-[350px] overflow-hidden">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-all duration-700"
@@ -94,21 +94,21 @@ const HeroBanner = () => {
 
       {/* Content */}
       <div className="relative h-full container flex items-center">
-        <div className="max-w-xl space-y-6 text-right animate-fade-in" dir="rtl">
-          <h1 className="text-4xl md:text-6xl font-bold text-white font-cairo drop-shadow-lg">
+        <div className="max-w-lg space-y-3 text-right animate-fade-in" dir="rtl">
+          <h1 className="text-2xl md:text-4xl font-bold text-white font-cairo drop-shadow-lg">
             {currentAd.title_ar || currentAd.title}
           </h1>
           {(currentAd.description_ar || currentAd.description) && (
-            <p className="text-lg md:text-xl text-white/90 leading-relaxed">
+            <p className="text-sm md:text-base text-white/90 leading-relaxed line-clamp-2">
               {currentAd.description_ar || currentAd.description}
             </p>
           )}
           <Button 
-            size="lg" 
-            className="shadow-luxury mt-4"
+            size="default" 
+            className="shadow-luxury mt-2"
             onClick={() => {
               if (currentAd.link) {
-                window.location.href = currentAd.link;
+                window.open(currentAd.link, '_blank', 'noopener,noreferrer');
               }
             }}
           >

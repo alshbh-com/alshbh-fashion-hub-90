@@ -12,7 +12,7 @@ const Footer = () => {
               Alshbh Fashion
             </h3>
             <p className="text-muted-foreground text-sm leading-relaxed">
-              متجر الشبه للأزياء - أفضل الملابس العصرية
+              الشبح فاشون - أفضل الملابس العصرية بأعلى جودة
             </p>
             <div className="flex gap-3">
               <a href="https://www.facebook.com/share/1Gz16PBfU1/" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
