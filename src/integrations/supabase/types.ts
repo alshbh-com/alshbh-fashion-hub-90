@@ -205,6 +205,7 @@ export type Database = {
           governorate_id: string | null
           id: string
           notes: string | null
+          order_number: number
           phone_primary: string
           phone_secondary: string | null
           shipping_price: number
@@ -220,6 +221,7 @@ export type Database = {
           governorate_id?: string | null
           id?: string
           notes?: string | null
+          order_number?: number
           phone_primary: string
           phone_secondary?: string | null
           shipping_price: number
@@ -235,6 +237,7 @@ export type Database = {
           governorate_id?: string | null
           id?: string
           notes?: string | null
+          order_number?: number
           phone_primary?: string
           phone_secondary?: string | null
           shipping_price?: number
